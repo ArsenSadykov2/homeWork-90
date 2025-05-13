@@ -174,8 +174,8 @@ const App = () => {
                     </div>
                     <canvas
                         ref={canvasRef}
-                        width={800}
-                        height={600}
+                        width={400}
+                        height={400}
                         onMouseDown={startDrawing}
                         onMouseUp={endDrawing}
                         onMouseMove={draw}

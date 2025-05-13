@@ -38,6 +38,7 @@ router.ws('/chat', (ws, req) => {
     console.log('Client connected');
     let username = 'Anonymous';
 
+
     chatClients.push(ws);
     console.log('Total connections: ' + chatClients.length);
 
