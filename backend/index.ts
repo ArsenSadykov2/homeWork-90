@@ -70,6 +70,47 @@ router.ws('/chat', (ws, req) => {
     });
 });
 
+router.ws('/draw', (ws, req) => {
+    console.log('Drawing client connected');
+    drawClients.push(ws);
+
+    ws.send(JSON.stringify({
+        type: 'INIT_PIXELS',
+        payload: pixels
+    }));
+
+    ws.on('message', (message) => {
+        try {
+            const decodedMessage = JSON.parse(message.toString()) as IncomingMessage;
+
+            if (decodedMessage.type === 'ADD_PIXEL') {
+                const pixel = decodedMessage.payload as Pixel;
+                pixels.push(pixel);
+
+                drawClients.forEach(client => {
+                    if (client !== ws && client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({
+                            type: 'NEW_PIXEL',
+                            payload: pixel
+                        }));
+                    }
+                });
+            }
+        } catch (e) {
+            console.error('Error processing message:', e);
+            ws.send(JSON.stringify({ error: 'Invalid message format' }));
+        }
+    });
+
+    ws.on('close', () => {
+        console.log('Drawing client disconnected');
+        const index = drawClients.indexOf(ws);
+        if (index !== -1) {
+            drawClients.splice(index, 1);
+        }
+        console.log('Total drawing connections: ' + drawClients.length);
+    });
+});
 
 
 app.use(router);
